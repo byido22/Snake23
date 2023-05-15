@@ -8,13 +8,13 @@ namespace Snake_Project
 {
     class Circle
     {
-        public int x { get; set; }
-        public int y { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
 
         public Circle()
         {
-            x = 0;
-            y = 0;
+            X = 0;
+            Y = 0;
         }
     }
 }

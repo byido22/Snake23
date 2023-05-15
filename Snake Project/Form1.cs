@@ -13,14 +13,16 @@ namespace Snake_Project
     public partial class Form1 : Form
     {
         private List<Circle> Snake = new List<Circle>();
-        private Circle food = new Circle();
+        private Food food = new Food();
+        private Wall w = new Wall();
 
-        int maxWidth;
-        int maxHeight;
 
-        int score;
-        int highscore;
-
+        public int maxWidth;
+        public int maxHeight;
+        public int score;
+        public int highscore;
+        
+    
         Random rand = new Random();
 
         bool goLeft, goRight, goUp, goDown;
@@ -101,7 +103,7 @@ namespace Snake_Project
             dialog.ValidateNames = true;
             //Save the file
 
-            if (dialog.ShowDialog()==DialogResult.OK)
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
                 int width = Convert.ToInt32(picCanvas.Width);
                 int height = Convert.ToInt32(picCanvas.Height);
@@ -120,78 +122,84 @@ namespace Snake_Project
             {
                 Settings.direction = "left";
             }
-            if(goRight)
+            if (goRight)
             {
                 Settings.direction = "right";
             }
-            if(goDown)
+            if (goDown)
             {
                 Settings.direction = "down";
             }
-            if(goUp)
+            if (goUp)
             {
                 Settings.direction = "up";
             }
             //Setting the direction
 
-            for (int i=Snake.Count-1;i>=0;i--)
+            for (int i = Snake.Count - 1; i >= 0; i--)
             {
-                if (i==0)
+                if (i == 0)
                 {
-                    switch(Settings.direction)
+                    switch (Settings.direction)
                     {
                         case "left":
-                            Snake[i].x--;
+                            Snake[i].X--;
                             break;
                         case "right":
-                            Snake[i].x++;
+                            Snake[i].X++;
                             break;
                         case "down":
-                            Snake[i].y++;
+                            Snake[i].Y++;
                             break;
                         case "up":
-                            Snake[i].y--;
+                            Snake[i].Y--;
                             break;
                     }
                     //Direction events
-                    
-                    if (Snake[i].x<0)
+
+                    if (Snake[i].X < 0)
                     {
-                        Snake[i].x = maxWidth;
+                        Snake[i].X = maxWidth;
                     }
-                    if (Snake[i].x > maxWidth)
+                    if (Snake[i].X > maxWidth)
                     {
-                        Snake[i].x = 0;
+                        Snake[i].X = 0;
                     }
-                    if (Snake[i].y<0)
+                    if (Snake[i].Y < 0)
                     {
-                        Snake[i].y = maxHeight;
+                        Snake[i].Y = maxHeight;
                     }
-                    if (Snake[i].y > maxHeight)
+                    if (Snake[i].Y > maxHeight)
                     {
-                        Snake[i].y = 0;
+                        Snake[i].Y = 0;
                     }
                     //Makes the snake appear on the other side of the canvas when its out of the bounds
 
-                    if (Snake[i].x == food.x && Snake[i].y == food.y)
+                    if (Snake[i].X == food.X && Snake[i].Y == food.Y)
                     {
                         EatFood();
                     }
                     //If the snake head and the food in the same x,y we call the EatFood function
 
-                    for (int j=1;j<Snake.Count;j++)
+                    for (int j = 1; j < Snake.Count; j++)
                     {
-                        if (Snake[i].x == Snake[j].x && Snake[i].y == Snake[j].y)
+                        if (Snake[i].X == Snake[j].X && Snake[i].Y == Snake[j].Y)
                         {
                             GameOver();
                         }
                     }
                     //If the snake head and body are in the same x,y we call the GameOver function
+                    bool check_1 = WallAndSnake(Snake[i].X, Snake[i].Y);
+
+                    if (check_1 == true)
+                    {
+                        GameOver();
+                    }
                 }
                 else
                 {
-                    Snake[i].x = Snake[i - 1].x;
-                    Snake[i].y = Snake[i - 1].y;
+                    Snake[i].X = Snake[i - 1].X;
+                    Snake[i].Y = Snake[i - 1].Y;
                 }
                 //Makes the body follow after the last circle in the list
             }
@@ -203,8 +211,9 @@ namespace Snake_Project
         {
             Graphics canvas = e.Graphics;
             //Linking the pain event to the canvas
-
+            
             Brush snakeColor;
+            Brush wallColor;
             //color the snake head and the body
 
             for (int i = 0; i < Snake.Count; i++)
@@ -220,8 +229,8 @@ namespace Snake_Project
                 //Coloring the head and the body of the snake
 
                 canvas.FillEllipse(snakeColor, new Rectangle
-                    (Snake[i].x * Settings.Width,
-                    Snake[i].y * Settings.Height,
+                    (Snake[i].X * Settings.Width,
+                    Snake[i].Y * Settings.Height,
                     Settings.Width, Settings.Height
 
                     ));
@@ -230,22 +239,49 @@ namespace Snake_Project
 
 
             canvas.FillEllipse(Brushes.DarkRed, new Rectangle
-                (food.x * Settings.Width,
-                food.y * Settings.Height,
+                (food.X * Settings.Width,
+                food.Y * Settings.Height,
                 Settings.Width, Settings.Height
                 ));
             //Fills the color inside the food cricle
 
+            wallColor = Brushes.Purple;
+            for (int i = 0; i < w.wall.Count; i++)
+            {
+
+                canvas.FillEllipse(wallColor, new Rectangle
+                   (w.wall[i].X * Settings.Width,
+                   w.wall[i].Y * Settings.Height,
+                   Settings.Width, Settings.Height
+
+                   ));
+
+            }
+            //Fills the color of the wall
+        }
+
+        private bool WallAndSnake(int Xpoint, int Ypoint)
+        {
+            for (int k = 0; k < w.wall.Count; k++)
+            {
+                if (Xpoint == w.wall[k].X && Ypoint == w.wall[k].Y)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void RestartGame()
         {
-            maxWidth = picCanvas.Width / Settings.Width - 1; 
+            maxWidth = picCanvas.Width / Settings.Width - 1;
             maxHeight = picCanvas.Height / Settings.Height - 1;
             //Marking the edge of the canvas 
 
             Snake.Clear();
-            //Clear the snake list befor the game start
+            //Clears the snake list
+            w.wall.Clear();
+            //Clears the wll list 
 
             startButton.Enabled = false;
             snapButton.Enabled = false;
@@ -255,20 +291,23 @@ namespace Snake_Project
             txtScore.Text = "Score: " + score;
             //Update the score
 
-            Circle head = new Circle { x = 10, y = 5 };
+            Circle head = new Circle { X = 10, Y = 5 };
             //Center the Snake in the canvas
 
             Snake.Add(head);
             //Adding the head part of the snake to the list
 
-            for (int i=0;i<10;i++)
+            for (int i = 0; i < 10; i++)
             {
-                //Circle body = new Circle();
+                
                 Snake.Add(new Circle());
             }
             //Adding the body part to the list
 
-            food = new Circle { x = rand.Next(2, maxWidth), y = rand.Next(2, maxHeight) };
+            //w.CreateWall(maxWidth,maxHeight);
+
+            food.CreateFood(maxWidth, maxHeight);
+           
             //Creating the first food circle
 
             gameTimer.Start();
@@ -283,15 +322,34 @@ namespace Snake_Project
 
             Circle body = new Circle
             {
-                x = Snake[Snake.Count - 1].x,
-                y = Snake[Snake.Count - 1].y
+                X = Snake[Snake.Count - 1].X,
+                Y = Snake[Snake.Count - 1].Y
             };
             //Creates new body circle
 
             Snake.Add(body);
             //Adds the new circle to the end of the list
+            
+            if (score % 3 == 0)
+            {
+                if (w.Active == true)
+                {
+                    w.wall.Clear();
+                    w.CreateWall(maxWidth, maxHeight);
+                }
+                else
+                {
+                    w.CreateWall(maxWidth, maxHeight);
+                }
 
-            food = new Circle { x = rand.Next(2, maxWidth), y = rand.Next(2, maxHeight) };
+            }
+            if (w.Active == true)
+            {
+                food.CreateFood(maxWidth, maxHeight,w);
+            }
+            food.CreateFood(maxWidth, maxHeight);
+            
+
             //Creates new food to eat
         }
 
@@ -313,4 +371,7 @@ namespace Snake_Project
             //Update the high score if needed
         }
     }
+  
+
+
 }
