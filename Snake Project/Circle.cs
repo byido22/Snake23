@@ -13,8 +13,14 @@ namespace Snake_Project
 
         public Circle()
         {
-            X = 0;
-            Y = 0;
+            X = 500;
+            Y = 500;
+        }
+
+        public void deleteCircle()
+        {
+            X = 500;
+            Y = 500;
         }
     }
 }

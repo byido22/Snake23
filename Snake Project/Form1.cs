@@ -12,17 +12,20 @@ namespace Snake_Project
 {
     public partial class Form1 : Form
     {
+        private List<Wall> wallList = new List<Wall>();
         private List<Circle> Snake = new List<Circle>();
         private Food food = new Food();
         private Wall w = new Wall();
+        private Poison p = new Poison();
 
 
         public int maxWidth;
         public int maxHeight;
         public int score;
         public int highscore;
-        
-    
+        public int poisonCount = 0;
+        private float rotationAngle = 90f;
+
         Random rand = new Random();
 
         bool goLeft, goRight, goUp, goDown;
@@ -121,18 +124,22 @@ namespace Snake_Project
             if (goLeft)
             {
                 Settings.direction = "left";
+                rotationAngle = 90f;
             }
             if (goRight)
             {
                 Settings.direction = "right";
+                rotationAngle = 270f;
             }
             if (goDown)
             {
                 Settings.direction = "down";
+                rotationAngle = 0f;
             }
             if (goUp)
             {
                 Settings.direction = "up";
+                rotationAngle = 180f;
             }
             //Setting the direction
 
@@ -179,6 +186,10 @@ namespace Snake_Project
                     {
                         EatFood();
                     }
+                    if (Snake[i].X == p.X && Snake[i].Y == p.Y)
+                    {
+                        eatPoison();
+                    }
                     //If the snake head and the food in the same x,y we call the EatFood function
 
                     for (int j = 1; j < Snake.Count; j++)
@@ -211,53 +222,112 @@ namespace Snake_Project
         {
             Graphics canvas = e.Graphics;
             //Linking the pain event to the canvas
-            
+
+            int enlargedWidth = Settings.Width + 3;
+            int enlargedHeight = Settings.Height + 3;
+            int HenlargedWidth = Settings.Width + 8;
+            int HenlargedHeight = Settings.Height + 8;
+            int PenlargedWidth = Settings.Width + 10;
+            int PenlargedHeight = Settings.Height + 10;
+            int offsetX;
+            int offsetY;
             Brush snakeColor;
             Brush wallColor;
-            //color the snake head and the body
+            Brush poisonColor;
+            snakeColor = Brushes.MediumSpringGreen;
+            Image wallImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\fance.png");
+            Image poisonImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Poison.png");
+            Image snakeHeadImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeHead.png");
+            Image snakeBodyImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeBody.png");
+            Image foodImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Burger.png");
+            //color the snake head and the body          
 
             for (int i = 0; i < Snake.Count; i++)
             {
                 if (i == 0)
                 {
-                    snakeColor = Brushes.Black;
+                    offsetX = Snake[i].X * Settings.Width + (Settings.Width - HenlargedWidth) / 2;
+                    offsetY = Snake[i].Y * Settings.Height + (Settings.Height - HenlargedHeight) / 2;
+
+                    canvas.TranslateTransform(offsetX + HenlargedWidth / 2, offsetY + HenlargedHeight / 2);
+                    canvas.RotateTransform(rotationAngle);
+                    canvas.TranslateTransform(-HenlargedWidth / 2, -HenlargedHeight / 2);
+                    canvas.DrawImage(snakeHeadImage, new Rectangle(0, 0, HenlargedWidth, HenlargedHeight));
+                   
+                   // canvas.DrawImage(snakeHeadImage, new Rectangle
+                   // (Snake[i].X * Settings.Width - (enlargedWidth - Settings.Width) / 2,
+                   // Snake[i].Y * Settings.Height - (enlargedHeight - Settings.Height) / 2,
+                   //enlargedWidth, enlargedHeight
+                    
+                    //));
+                    canvas.ResetTransform();
+                    //canvas.TranslateTransform(Snake[i].X * Settings.Width + Settings.Width / 2, Snake[i].Y * Settings.Height + Settings.Height / 2);
+                    //canvas.RotateTransform(rotationAngle);
+                    //canvas.TranslateTransform(-Settings.Width / 2, -Settings.Height / 2);
+
+                    //canvas.DrawImage(snakeHeadImage, new Rectangle(0, 0, enlargedWidth, enlargedHeight));
+
+                    //canvas.ResetTransform();
                 }
                 else
                 {
-                    snakeColor = Brushes.DarkGreen;
+                    offsetX = Snake[i].X * Settings.Width + (Settings.Width - enlargedWidth) / 2;
+                    offsetY = Snake[i].Y * Settings.Height + (Settings.Height - enlargedHeight) / 2;
+
+                    canvas.TranslateTransform(offsetX + enlargedWidth / 2, offsetY + enlargedHeight / 2);
+                    canvas.RotateTransform(rotationAngle);
+                    canvas.TranslateTransform(-enlargedWidth / 2, -enlargedHeight / 2);
+                    canvas.DrawImage(snakeBodyImage, new Rectangle(0, 0, enlargedWidth, enlargedHeight));
+                    canvas.ResetTransform();
+                    //  canvas.DrawImage(snakeBodyImage, new Rectangle
+                    //(Snake[i].X * Settings.Width - (enlargedWidth - Settings.Width) / 2,
+                    //Snake[i].Y * Settings.Height - (enlargedHeight - Settings.Height) / 2,
+                    //Settings.Width, Settings.Height
+                    //));
+
+
+                    //    canvas.FillEllipse(snakeColor, new Rectangle
+                    //(Snake[i].X * Settings.Width,
+                    //Snake[i].Y * Settings.Height,
+                    //Settings.Width, Settings.Height
+                    //));
                 }
                 //Coloring the head and the body of the snake
 
-                canvas.FillEllipse(snakeColor, new Rectangle
-                    (Snake[i].X * Settings.Width,
-                    Snake[i].Y * Settings.Height,
-                    Settings.Width, Settings.Height
 
-                    ));
+
                 //Fills the color inside the head or the body circle 
             }
 
 
-            canvas.FillEllipse(Brushes.DarkRed, new Rectangle
-                (food.X * Settings.Width,
-                food.Y * Settings.Height,
-                Settings.Width, Settings.Height
-                ));
+            canvas.DrawImage(foodImage, new Rectangle
+               (food.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
+               food.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
+              PenlargedWidth, PenlargedHeight
+               ));
             //Fills the color inside the food cricle
 
             wallColor = Brushes.Purple;
             for (int i = 0; i < w.wall.Count; i++)
             {
 
-                canvas.FillEllipse(wallColor, new Rectangle
-                   (w.wall[i].X * Settings.Width,
-                   w.wall[i].Y * Settings.Height,
-                   Settings.Width, Settings.Height
+                canvas.DrawImage(wallImage, new Rectangle
+                   (w.wall[i].X * Settings.Width - (enlargedWidth - Settings.Width) / 2,
+                   w.wall[i].Y * Settings.Height - (enlargedHeight - Settings.Height) / 2,
+                   enlargedWidth, enlargedHeight
 
                    ));
 
             }
             //Fills the color of the wall
+
+            poisonColor = Brushes.Blue;
+            canvas.DrawImage(poisonImage, new Rectangle
+                (p.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
+                p.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
+               PenlargedWidth, PenlargedHeight
+                ));
+            //Add the image to the poison class
         }
 
         private bool WallAndSnake(int Xpoint, int Ypoint)
@@ -278,10 +348,20 @@ namespace Snake_Project
             maxHeight = picCanvas.Height / Settings.Height - 1;
             //Marking the edge of the canvas 
 
+            poisonCount = 0;
+            //Restart the total counting
+
             Snake.Clear();
             //Clears the snake list
-            w.wall.Clear();
+
+            w.ClearWall();           
             //Clears the wll list 
+
+            food.ClearFood();
+            //Clears the food
+
+            p.deletePoison();
+            //Clears the poison
 
             startButton.Enabled = false;
             snapButton.Enabled = false;
@@ -306,16 +386,37 @@ namespace Snake_Project
 
             //w.CreateWall(maxWidth,maxHeight);
 
-            food.CreateFood(maxWidth, maxHeight);
-           
-            //Creating the first food circle
+            food.CreateFood(maxWidth, maxHeight, w);
 
+            //Creating the food circle
+           
             gameTimer.Start();
             //Starting the timer
         }
 
+        public void eatPoison()
+        {
+            p.deletePoison();
+            score--;
+            txtScore.Text = "Score: " + score;
+            //Score update
+
+            w.wallNum++;
+            w.wall.Clear();
+            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
+            food.ClearFood();
+            food.CreateFood(maxWidth, maxHeight, w);
+            Snake[Snake.Count - 1].deleteCircle();
+            Snake.RemoveAt(Snake.Count - 1);
+            
+
+        }
+
         private void EatFood()
         {
+            food.ClearFood();
+            
+            poisonCount++;
             score++;
             txtScore.Text = "Score: " + score;
             //Score update
@@ -331,25 +432,20 @@ namespace Snake_Project
             //Adds the new circle to the end of the list
             
             if (score % 3 == 0)
-            {
-                if (w.Active == true)
-                {
-                    w.wall.Clear();
-                    w.CreateWall(maxWidth, maxHeight);
-                }
-                else
-                {
-                    w.CreateWall(maxWidth, maxHeight);
-                }
-
+            {              
+                w.wall.Clear();
+                w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
             }
-            if (w.Active == true)
-            {
-                food.CreateFood(maxWidth, maxHeight,w);
-            }
-            food.CreateFood(maxWidth, maxHeight);
-            
+            //Creates a wall
 
+            if (poisonCount%5==0)
+            {
+                p.deletePoison();
+                p.CreatePoison(maxWidth, maxHeight,w);
+            }
+            //Creates a poison
+
+            food.CreateFood(maxWidth, maxHeight, w);
             //Creates new food to eat
         }
 

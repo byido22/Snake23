@@ -18,6 +18,7 @@ namespace Snake_Project
             Width = 16;
             Height = 16;
             direction = "left";
+            
         }
     }
 }
