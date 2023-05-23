@@ -13,15 +13,7 @@ namespace Snake_Project
         bool flag2 = true;
         Random rand = new Random();
         public void CreatePoison(int maxWidth, int maxHeight , Wall w)
-        {
-            //int x = rand.Next(2, maxWidth);
-            //int y = rand.Next(2, maxHeight);
-            //do
-            //{
-            //    x = rand.Next(2, maxWidth);
-            //    y = rand.Next(2, maxWidth);
-            //} while (x == w.wall[i].X && y == w.wall[i].Y)
-            
+        {     
             while (flag1)
             {
                 int x = rand.Next(2, maxWidth);
@@ -44,7 +36,7 @@ namespace Snake_Project
             }
         }
 
-        public void deletePoison()
+        public void clearPoison()
         {
             this.X = 500;
             this.Y = 500;

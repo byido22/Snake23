@@ -14,21 +14,25 @@ namespace Snake_Project
     {
         private List<Wall> wallList = new List<Wall>();
         private List<Circle> Snake = new List<Circle>();
+        static private Bonus b = new Bonus();
         private Food food = new Food();
         private Wall w = new Wall();
         private Poison p = new Poison();
+        
 
 
         public int maxWidth;
         public int maxHeight;
         public int score;
         public int highscore;
-        public int poisonCount = 0;
+        public int totalCount = 0;
         private float rotationAngle = 90f;
+
 
         Random rand = new Random();
 
         bool goLeft, goRight, goUp, goDown;
+        bool poisonIndex = false;
         public Form1()
         {
             InitializeComponent();
@@ -116,6 +120,7 @@ namespace Snake_Project
                 picCanvas.Controls.Remove(caption);
             }
             //When we save a picture we define the width ,the height and the format of the picture and add the label we created above
+            picCanvas.Controls.Remove(caption);
         }
 
         private void GameTimerEvent(object sender, EventArgs e)
@@ -190,6 +195,10 @@ namespace Snake_Project
                     {
                         eatPoison();
                     }
+                    if (Snake[i].X == b.X && Snake[i].Y == b.Y)
+                    {
+                        eatBonus();
+                    }
                     //If the snake head and the food in the same x,y we call the EatFood function
 
                     for (int j = 1; j < Snake.Count; j++)
@@ -240,6 +249,7 @@ namespace Snake_Project
             Image snakeHeadImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeHead.png");
             Image snakeBodyImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeBody.png");
             Image foodImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Burger.png");
+            Image bonusImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Bonus.png");
             //color the snake head and the body          
 
             for (int i = 0; i < Snake.Count; i++)
@@ -307,7 +317,7 @@ namespace Snake_Project
                ));
             //Fills the color inside the food cricle
 
-            wallColor = Brushes.Purple;
+           
             for (int i = 0; i < w.wall.Count; i++)
             {
 
@@ -321,13 +331,19 @@ namespace Snake_Project
             }
             //Fills the color of the wall
 
-            poisonColor = Brushes.Blue;
+           
             canvas.DrawImage(poisonImage, new Rectangle
                 (p.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
                 p.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
                PenlargedWidth, PenlargedHeight
                 ));
             //Add the image to the poison class
+
+            canvas.DrawImage(bonusImage, new Rectangle
+              (b.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
+              b.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
+             PenlargedWidth, PenlargedHeight
+              ));
         }
 
         private bool WallAndSnake(int Xpoint, int Ypoint)
@@ -342,14 +358,31 @@ namespace Snake_Project
             return false;
         }
 
+        private void goFast()
+        {
+            gameTimer.Interval = 25;
+        }
+
+        private void goSlow()
+        {
+            gameTimer.Interval = 40;
+        }
+
+
         private void RestartGame()
         {
             maxWidth = picCanvas.Width / Settings.Width - 1;
             maxHeight = picCanvas.Height / Settings.Height - 1;
             //Marking the edge of the canvas 
 
-            poisonCount = 0;
+            totalCount = 0;
             //Restart the total counting
+
+            if(poisonIndex==true)
+            {
+                poisonIndex = false;
+                goSlow();
+            }
 
             Snake.Clear();
             //Clears the snake list
@@ -360,7 +393,7 @@ namespace Snake_Project
             food.ClearFood();
             //Clears the food
 
-            p.deletePoison();
+            p.clearPoison();
             //Clears the poison
 
             startButton.Enabled = false;
@@ -394,9 +427,40 @@ namespace Snake_Project
             //Starting the timer
         }
 
+        public void eatBonus()
+        {
+            b.clearBouns();
+            score += 2;
+            txtScore.Text = "score: " + score;
+            //Score update
+
+            if (w.wallNum>1)
+            {
+                w.wallNum--;
+            }
+            
+            w.wall.Clear();
+            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
+            food.ClearFood();
+            food.CreateFood(maxWidth, maxHeight, w);
+
+            for (int i =0;i<2;i++)
+            {
+                Circle body = new Circle
+                {
+                    X = Snake[Snake.Count - 1].X,
+                    Y = Snake[Snake.Count - 1].Y
+                };
+                //Creates new body circle
+
+                Snake.Add(body);
+            }
+
+        }
+
         public void eatPoison()
         {
-            p.deletePoison();
+            p.clearPoison();
             score--;
             txtScore.Text = "Score: " + score;
             //Score update
@@ -408,7 +472,8 @@ namespace Snake_Project
             food.CreateFood(maxWidth, maxHeight, w);
             Snake[Snake.Count - 1].deleteCircle();
             Snake.RemoveAt(Snake.Count - 1);
-            
+            goFast();
+            poisonIndex = true;
 
         }
 
@@ -416,7 +481,7 @@ namespace Snake_Project
         {
             food.ClearFood();
             
-            poisonCount++;
+            totalCount++;
             score++;
             txtScore.Text = "Score: " + score;
             //Score update
@@ -431,19 +496,30 @@ namespace Snake_Project
             Snake.Add(body);
             //Adds the new circle to the end of the list
             
-            if (score % 3 == 0)
+            if (poisonIndex==true)
+            {
+                goSlow();
+                poisonIndex = false;
+            }
+            if (totalCount % 3 == 0)
             {              
                 w.wall.Clear();
                 w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
             }
             //Creates a wall
 
-            if (poisonCount%5==0)
+            if (totalCount%5==0)
             {
-                p.deletePoison();
+                p.clearPoison();
                 p.CreatePoison(maxWidth, maxHeight,w);
             }
             //Creates a poison
+
+            if (totalCount % 10 == 0)
+            {
+                b.clearBouns();
+                b.CreateBouns(maxWidth, maxHeight, w);
+            }
 
             food.CreateFood(maxWidth, maxHeight, w);
             //Creates new food to eat
