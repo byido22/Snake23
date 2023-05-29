@@ -42,35 +42,7 @@ namespace Snake_Project
             flag1 = true;
             flag2 = true;
         }
-        //Random rand = new Random();
-        //Food f = new Food();
-        //int maxW;
-        //int maxH;
-        //public Bonus(int maxW, int maxH) // constructor 
-        //{
-        //    this.maxW = maxW;
-        //    this.maxH = maxH;
-        //}
-
-        //// public void createBonus() // point of bonus
-        // {
-        //     // f.CreateFood(maxW, maxH);
-        // }
-
-        //public void snakeAndBonus() // function when snake eats bonus
-        //{
-
-        //    //Circle body = new Circle
-        //    //{
-        //    //    X = snake[snake.Count - 1].X,
-        //    //    Y = snake[snake.Count - 1].Y
-        //    //};
-
-        //    //snake.Add(body);
-
-
-
-        //}
+       
 
     }
 }

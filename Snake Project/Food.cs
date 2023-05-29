@@ -16,30 +16,25 @@ namespace Snake_Project
     {
         Random rand = new Random();
         bool flag1 = true;
-        bool flag2 = true;
         public Food()
         {
 
         }
 
-        //public void CreateFood(int maxWidth,int maxHeight)
-        //{
-        //    int x = rand.Next(2, maxWidth);
-        //    int y = rand.Next(2, maxHeight);
-        //    this.X = x;
-        //    this.Y = y;          
-        //}
 
-        public void CreateFood(int maxWidth, int maxHeight,Wall w)
+        public void CreateFood(int maxWidth, int maxHeight,Wall w , Poison p, List<Circle> s)
         {                  
             while (flag1)
             {
                 bool chack1 = false;
+                bool chack2 = false;
+                bool chack3 = false;
                 int x = rand.Next(2, maxWidth);
                 int y = rand.Next(2, maxHeight);
                 chack1 = foodAndWall(x,y,w);
-                
-                if (chack1 == false )
+                chack2 = foodAndPoison(x, y, p);
+                chack3 = foodAndSnake(x, y, s);
+                if (chack1 == false && chack2 == false && chack3 == false )
                 {
                     this.X = x;
                     this.Y = y;
@@ -61,6 +56,19 @@ namespace Snake_Project
 
         }
 
+        public bool foodAndSnake(int xPoint, int yPoint, List<Circle> s)
+        {
+            for (int i = 0; i < s.Count; i++)
+            {
+                if (xPoint == s[i].X && yPoint == s[i].Y)
+                {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+
         public bool foodAndPoison(int xPoint, int yPoint, Poison p)
         {
             if (xPoint == p.X && yPoint == p.Y)
@@ -72,7 +80,6 @@ namespace Snake_Project
         public void ClearFood()
         {
             flag1 = true;
-            flag2 = true;
             this.X = 0;
             this.Y = 0;
         }

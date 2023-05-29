@@ -10,16 +10,16 @@ namespace Snake_Project
     {
         public List<Circle> wall = new List<Circle>();
         public List<Wall> walls = new List<Wall>();
-        Random rand = new Random();
-        public bool Active = false;
+        Random rand = new Random();      
         public int wallNum = 1;
         public Wall()
         {
 
         }        
 
-        public void CreateWall(int maxWidth , int maxHeight , int xSnake , int ySnake)
+        public void CreateWall(int maxWidth , int maxHeight , int xSnake , int ySnake , int score)
         {
+            int SnakeLength = score + 11;
             int x = rand.Next(2, maxWidth);
             int y = rand.Next(2, maxHeight);
             for (int i=0;i<wallNum;i++)
@@ -28,7 +28,9 @@ namespace Snake_Project
                 {
                     x = rand.Next(2, maxWidth);
                     y = rand.Next(2, maxHeight);
-                } while (x >= xSnake && x < xSnake + 7 && y >= ySnake && y < ySnake + 7);
+                } while (!(x >= xSnake) && !(x < xSnake + SnakeLength) && !(y >= ySnake) && !(y < ySnake + SnakeLength));
+                //Chacking that the wall creation wont spwan on the snake
+
                 Circle first_brick = new Circle();
                 first_brick.X = x;
                 first_brick.Y = y;
@@ -40,12 +42,11 @@ namespace Snake_Project
                     wall.Add(brick);
                 }
             }          
-            this.Active = true;           
+                     
         }
 
         public void ClearWall()
         {
-            this.Active = false;
             wallNum = 1;
             wall.Clear();
         }

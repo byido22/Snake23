@@ -45,7 +45,7 @@ namespace Snake_Project
             this.startButton.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.startButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.startButton.Location = new System.Drawing.Point(454, 10);
-            this.startButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.startButton.Margin = new System.Windows.Forms.Padding(2);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(96, 38);
             this.startButton.TabIndex = 0;
@@ -58,7 +58,7 @@ namespace Snake_Project
             this.snapButton.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.snapButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.snapButton.Location = new System.Drawing.Point(454, 53);
-            this.snapButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.snapButton.Margin = new System.Windows.Forms.Padding(2);
             this.snapButton.Name = "snapButton";
             this.snapButton.Size = new System.Drawing.Size(96, 38);
             this.snapButton.TabIndex = 0;
@@ -70,7 +70,7 @@ namespace Snake_Project
             // 
             this.picCanvas.BackColor = System.Drawing.SystemColors.ControlLight;
             this.picCanvas.Location = new System.Drawing.Point(9, 7);
-            this.picCanvas.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.picCanvas.Margin = new System.Windows.Forms.Padding(2);
             this.picCanvas.Name = "picCanvas";
             this.picCanvas.Size = new System.Drawing.Size(435, 552);
             this.picCanvas.TabIndex = 1;
@@ -117,9 +117,10 @@ namespace Snake_Project
             this.Controls.Add(this.snapButton);
             this.Controls.Add(this.startButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Classic Snake game";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.keyIsDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyIsUp);
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).EndInit();

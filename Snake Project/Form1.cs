@@ -8,6 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.Xml;
+
 namespace Snake_Project
 {
     public partial class Form1 : Form
@@ -18,8 +24,8 @@ namespace Snake_Project
         private Food food = new Food();
         private Wall w = new Wall();
         private Poison p = new Poison();
-        
-
+        Highscore h = new Highscore();
+        Random rand = new Random();
 
         public int maxWidth;
         public int maxHeight;
@@ -27,12 +33,9 @@ namespace Snake_Project
         public int highscore;
         public int totalCount = 0;
         private float rotationAngle = 90f;
-
-
-        Random rand = new Random();
-
         bool goLeft, goRight, goUp, goDown;
         bool poisonIndex = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -93,7 +96,7 @@ namespace Snake_Project
         private void TakeSnapshot(object sender, EventArgs e)
         {
             Label caption = new Label();
-            caption.Text = "I scored " + score + " and my highscore is " + highscore + " on the classic snake game";
+            caption.Text = "I scored " + score + " and my highscore is " + h.Value + " on the classic snake game";
             caption.Font = new Font("Ariel", 9, FontStyle.Bold);
             caption.ForeColor = Color.DarkBlue;
             caption.AutoSize = false;
@@ -108,7 +111,7 @@ namespace Snake_Project
             dialog.DefaultExt = "jpg";
             dialog.Filter = "JPG Image File | *.jpg";
             dialog.ValidateNames = true;
-            //Save the file
+            //Save the JPG file
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -125,7 +128,7 @@ namespace Snake_Project
 
         private void GameTimerEvent(object sender, EventArgs e)
         {
-            //Settings.direction = e.Keycode();
+            
             if (goLeft)
             {
                 Settings.direction = "left";
@@ -208,7 +211,8 @@ namespace Snake_Project
                             GameOver();
                         }
                     }
-                    //If the snake head and body are in the same x,y we call the GameOver function
+
+                    //If the snake's head and body are in the same x,y call the GameOver function
                     bool check_1 = WallAndSnake(Snake[i].X, Snake[i].Y);
 
                     if (check_1 == true)
@@ -238,19 +242,17 @@ namespace Snake_Project
             int HenlargedHeight = Settings.Height + 8;
             int PenlargedWidth = Settings.Width + 10;
             int PenlargedHeight = Settings.Height + 10;
+            //Diffrent sizes to the images
             int offsetX;
             int offsetY;
-            Brush snakeColor;
-            Brush wallColor;
-            Brush poisonColor;
-            snakeColor = Brushes.MediumSpringGreen;
+           
             Image wallImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\fance.png");
             Image poisonImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Poison.png");
             Image snakeHeadImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeHead.png");
             Image snakeBodyImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\SnakeBody.png");
             Image foodImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Burger.png");
             Image bonusImage = Image.FromFile(@"C:\Users\byido\source\repos\Snake Project\Snake Project\img\Bonus.png");
-            //color the snake head and the body          
+                
 
             for (int i = 0; i < Snake.Count; i++)
             {
@@ -263,21 +265,7 @@ namespace Snake_Project
                     canvas.RotateTransform(rotationAngle);
                     canvas.TranslateTransform(-HenlargedWidth / 2, -HenlargedHeight / 2);
                     canvas.DrawImage(snakeHeadImage, new Rectangle(0, 0, HenlargedWidth, HenlargedHeight));
-                   
-                   // canvas.DrawImage(snakeHeadImage, new Rectangle
-                   // (Snake[i].X * Settings.Width - (enlargedWidth - Settings.Width) / 2,
-                   // Snake[i].Y * Settings.Height - (enlargedHeight - Settings.Height) / 2,
-                   //enlargedWidth, enlargedHeight
-                    
-                    //));
                     canvas.ResetTransform();
-                    //canvas.TranslateTransform(Snake[i].X * Settings.Width + Settings.Width / 2, Snake[i].Y * Settings.Height + Settings.Height / 2);
-                    //canvas.RotateTransform(rotationAngle);
-                    //canvas.TranslateTransform(-Settings.Width / 2, -Settings.Height / 2);
-
-                    //canvas.DrawImage(snakeHeadImage, new Rectangle(0, 0, enlargedWidth, enlargedHeight));
-
-                    //canvas.ResetTransform();
                 }
                 else
                 {
@@ -289,35 +277,18 @@ namespace Snake_Project
                     canvas.TranslateTransform(-enlargedWidth / 2, -enlargedHeight / 2);
                     canvas.DrawImage(snakeBodyImage, new Rectangle(0, 0, enlargedWidth, enlargedHeight));
                     canvas.ResetTransform();
-                    //  canvas.DrawImage(snakeBodyImage, new Rectangle
-                    //(Snake[i].X * Settings.Width - (enlargedWidth - Settings.Width) / 2,
-                    //Snake[i].Y * Settings.Height - (enlargedHeight - Settings.Height) / 2,
-                    //Settings.Width, Settings.Height
-                    //));
 
-
-                    //    canvas.FillEllipse(snakeColor, new Rectangle
-                    //(Snake[i].X * Settings.Width,
-                    //Snake[i].Y * Settings.Height,
-                    //Settings.Width, Settings.Height
-                    //));
                 }
-                //Coloring the head and the body of the snake
-
-
-
-                //Fills the color inside the head or the body circle 
+                           
             }
-
-
+            //Adds the image to the Snake list , head and body
             canvas.DrawImage(foodImage, new Rectangle
                (food.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
                food.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
               PenlargedWidth, PenlargedHeight
                ));
-            //Fills the color inside the food cricle
+            //Adds the image to the food 
 
-           
             for (int i = 0; i < w.wall.Count; i++)
             {
 
@@ -329,21 +300,21 @@ namespace Snake_Project
                    ));
 
             }
-            //Fills the color of the wall
+            //Adds the image to the Wall list
 
-           
             canvas.DrawImage(poisonImage, new Rectangle
                 (p.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
                 p.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
                PenlargedWidth, PenlargedHeight
                 ));
-            //Add the image to the poison class
+            //Adds the image to the Poison class
 
             canvas.DrawImage(bonusImage, new Rectangle
               (b.X * Settings.Width - (PenlargedWidth - Settings.Width) / 2,
               b.Y * Settings.Height - (PenlargedHeight - Settings.Height) / 2,
              PenlargedWidth, PenlargedHeight
               ));
+            //Adds the image to the Bonus class
         }
 
         private bool WallAndSnake(int Xpoint, int Ypoint)
@@ -357,20 +328,32 @@ namespace Snake_Project
             }
             return false;
         }
+        //Chacking if the head hits the wall
 
         private void goFast()
         {
             gameTimer.Interval = 25;
         }
+        //Increases the snake's speed
 
         private void goSlow()
         {
             gameTimer.Interval = 40;
         }
-
+        //Lowers the snake's speed
 
         private void RestartGame()
         {
+            h = Highscore.LoadFile("highscore.xml");
+            using (StreamWriter writer = new StreamWriter("highscore.xml"))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Highscore));
+                serializer.Serialize(writer, h);
+                writer.Close();
+            }
+            //Serialize
+
+            txtHighscore.Text = "Highscore: " + h.Value;
             maxWidth = picCanvas.Width / Settings.Width - 1;
             maxHeight = picCanvas.Height / Settings.Height - 1;
             //Marking the edge of the canvas 
@@ -378,17 +361,20 @@ namespace Snake_Project
             totalCount = 0;
             //Restart the total counting
 
-            if(poisonIndex==true)
+         
+
+            if (poisonIndex == true)
             {
                 poisonIndex = false;
                 goSlow();
             }
+            //Restarting the speed of the snake
 
             Snake.Clear();
             //Clears the snake list
 
-            w.ClearWall();           
-            //Clears the wll list 
+            w.ClearWall();
+            //Clears the wall list 
 
             food.ClearFood();
             //Clears the food
@@ -396,13 +382,16 @@ namespace Snake_Project
             p.clearPoison();
             //Clears the poison
 
+            b.clearBouns();
+            //Clears the bonus
+
             startButton.Enabled = false;
             snapButton.Enabled = false;
             //Disable the buttons to use the keyboerd
 
             score = 0;
             txtScore.Text = "Score: " + score;
-            //Update the score
+            //Update the score         
 
             Circle head = new Circle { X = 10, Y = 5 };
             //Center the Snake in the canvas
@@ -412,17 +401,14 @@ namespace Snake_Project
 
             for (int i = 0; i < 10; i++)
             {
-                
+
                 Snake.Add(new Circle());
             }
             //Adding the body part to the list
 
-            //w.CreateWall(maxWidth,maxHeight);
-
-            food.CreateFood(maxWidth, maxHeight, w);
-
+            food.CreateFood(maxWidth, maxHeight, w,p,Snake);
             //Creating the food circle
-           
+
             gameTimer.Start();
             //Starting the timer
         }
@@ -432,19 +418,21 @@ namespace Snake_Project
             b.clearBouns();
             score += 2;
             txtScore.Text = "score: " + score;
-            //Score update
+            //Score added 2 points 
 
-            if (w.wallNum>1)
+            if (w.wallNum > 1)
             {
                 w.wallNum--;
             }
-            
-            w.wall.Clear();
-            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
-            food.ClearFood();
-            food.CreateFood(maxWidth, maxHeight, w);
+            //Delete 1 wall
 
-            for (int i =0;i<2;i++)
+            w.wall.Clear();
+            food.ClearFood();
+            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y,score);
+            food.CreateFood(maxWidth, maxHeight, w,p,Snake);
+            //Reset the Food and the Wall position
+
+            for (int i = 0; i < 2; i++)
             {
                 Circle body = new Circle
                 {
@@ -467,12 +455,20 @@ namespace Snake_Project
 
             w.wallNum++;
             w.wall.Clear();
-            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
+            w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y,score);
+            //Adding a wall
+
             food.ClearFood();
-            food.CreateFood(maxWidth, maxHeight, w);
+            food.CreateFood(maxWidth, maxHeight, w,p,Snake);
+            //Reset the Food
+
             Snake[Snake.Count - 1].deleteCircle();
             Snake.RemoveAt(Snake.Count - 1);
+            //shortens the snake
+
             goFast();
+            //increases the speed of the snake
+
             poisonIndex = true;
 
         }
@@ -480,8 +476,9 @@ namespace Snake_Project
         private void EatFood()
         {
             food.ClearFood();
-            
+
             totalCount++;
+            //Update total count
             score++;
             txtScore.Text = "Score: " + score;
             //Score update
@@ -495,23 +492,23 @@ namespace Snake_Project
 
             Snake.Add(body);
             //Adds the new circle to the end of the list
-            
-            if (poisonIndex==true)
+
+            if (poisonIndex == true)
             {
                 goSlow();
                 poisonIndex = false;
             }
             if (totalCount % 3 == 0)
-            {              
+            {
                 w.wall.Clear();
-                w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y);
+                w.CreateWall(maxWidth, maxHeight, Snake[0].X, Snake[0].Y,score);
             }
             //Creates a wall
 
-            if (totalCount%5==0)
+            if (totalCount % 5 == 0)
             {
                 p.clearPoison();
-                p.CreatePoison(maxWidth, maxHeight,w);
+                p.CreatePoison(maxWidth, maxHeight, w);
             }
             //Creates a poison
 
@@ -521,8 +518,13 @@ namespace Snake_Project
                 b.CreateBouns(maxWidth, maxHeight, w);
             }
 
-            food.CreateFood(maxWidth, maxHeight, w);
+            food.CreateFood(maxWidth, maxHeight, w, p, Snake);
             //Creates new food to eat
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void GameOver()
@@ -533,15 +535,16 @@ namespace Snake_Project
             snapButton.Enabled = true;
             //Enable back the buttons
 
-            if (score > highscore)
+            if (score > h.Value)
             {
-                highscore = score;
-                txtHighscore.Text = "High Score: " + Environment.NewLine + highscore;
-                txtHighscore.ForeColor = Color.Maroon;
-                txtHighscore.TextAlign = ContentAlignment.MiddleCenter;
+                h.Value = score;
+                txtHighscore.Text = "Highscore: " + h.Value;
+                h.Save("highscore.xml");
             }
-            //Update the high score if needed
+            //Chacking for new highscore
         }
+
+        
     }
   
 
